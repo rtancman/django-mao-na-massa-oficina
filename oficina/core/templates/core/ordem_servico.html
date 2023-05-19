@@ -4,11 +4,38 @@
     <h1 class="display-5 fw-bold text-body-emphasis">Ordem de Serviço</h1>
     <div class="col-lg-6 mx-auto">
       <p class="lead mb-4">Veja as suas ordens de serviço abaixo:</p>
-      <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-        <ul>
-          <li></li>
-        </ul>
-      </div>
+      {% if ordens_servico %}
+        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Carro</th>
+                <th scope="col">Descrição</th>
+                <th scope="col">Valor</th>
+                <th scope="col">data do serviço</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for ordem_servico in ordens_servico %}
+              <tr>
+                <th scope="row">{{ ordem_servico.id }}</th>
+                <td>{{ ordem_servico.carro.nome }}</td>
+                <td>{{ ordem_servico.descricao }}</td>
+                <td>{{ ordem_servico.valor }}</td>
+                <td>{{ ordem_servico.data_criacao }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="alert alert-warning d-flex align-items-center" role="alert">
+          <div>
+            Não existe nenhuma ordem de serviço para este usuário.
+          </div>
+        </div>
+      {% endif %}
     </div>
   </div>
 {% endblock content %}
