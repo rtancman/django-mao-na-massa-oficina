@@ -302,8 +302,123 @@ Rode o django novamente para aplicar as modificações:
 python manage.py runserver
 ```
 
+
 ### Crie Modelos
 
-```bash
+Vamos criar os modelos que vão compor o nosso sistema atual, são eles:
 
+- Usuário
+- Carro
+- Ordem de serviço
+
+**OBS:** Vamos utilizar o usuário do django.
+
+### Crie o modelo Carro
+
+Nosso carro terá os seguintes atributos:
+
+- nome
+- placa
+- montadora
+- data de criação
+- usuario
+
+Altere o arquivo oficina/core/models.py
+
+```python
+from django.conf import settings
+from django.db import models
+from django.utils import timezone
+
+
+class Carro(models.Model):
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    nome = models.CharField(max_length=200)
+    placa = models.CharField(max_length=200)
+    montadora = models.TextField()
+    data_criacao = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"{self.nome} - {self.usuario.username}"
 ```
+
+Criando a tabela para o nosso modelo Carro:
+
+```bash
+python manage.py makemigrations core
+```
+
+Adicionando o nosso modelo para ser acessado via admin do django:
+
+Modifique o arquivo `oficina/core/admin.py`.
+
+```python
+from django.contrib import admin
+from .models import Carro
+
+
+admin.site.register(Carro)
+```
+
+Rode o django novamente para aplicar as modificações:
+
+```bash
+python manage.py runserver
+```
+
+Vamos ver o admin do django com o nosso novo modelo acessando http://127.0.0.1:8000/admin
+
+
+### Crie o modelo Ordem de Serviço
+
+Nosso modelo "Ordem Serviço" terá os seguintes atributos:
+
+- carro
+- descrição do serviço
+- valor total
+- data de criação
+
+Altere o arquivo oficina/core/models.py
+
+```python
+from django.conf import settings
+from django.db import models
+from django.utils import timezone
+
+
+class OrdemServico(models.Model):
+    carro = models.ForeignKey(Carro, on_delete=models.CASCADE)
+    descricao = models.CharField(max_length=200)
+    valor = models.CharField(max_length=200)
+    data_criacao = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"OS: {self.carro.id} - {self.carro.nome} - {self.carro.usuario.username}"
+```
+
+Criando a tabela para o nosso modelo OrdemServico:
+
+```bash
+python manage.py makemigrations core
+```
+
+Adicionando o nosso modelo para ser acessado via admin do django:
+
+Modifique o arquivo `oficina/core/admin.py`.
+
+```python
+from django.contrib import admin
+from .models import Carro, OrdemServico
+
+
+admin.site.register(Carro)
+admin.site.register(OrdemServico)
+```
+
+Rode o django novamente para aplicar as modificações:
+
+```bash
+python manage.py runserver
+```
+
+Vamos ver o admin do django com o nosso novo modelo acessando http://127.0.0.1:8000/admin
