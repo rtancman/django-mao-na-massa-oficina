@@ -346,6 +346,7 @@ Criando a tabela para o nosso modelo Carro:
 
 ```bash
 python manage.py makemigrations core
+python manage.py migrate core
 ```
 
 Adicionando o nosso modelo para ser acessado via admin do django:
@@ -400,6 +401,7 @@ Criando a tabela para o nosso modelo OrdemServico:
 
 ```bash
 python manage.py makemigrations core
+python manage.py migrate core
 ```
 
 Adicionando o nosso modelo para ser acessado via admin do django:
@@ -422,3 +424,94 @@ python manage.py runserver
 ```
 
 Vamos ver o admin do django com o nosso novo modelo acessando http://127.0.0.1:8000/admin
+
+### Crie a função de login e logout
+
+Agora vamos adicionar as funcionalidades de login e logout. 
+
+1. Modifique o arquivo `oficina/core/views.py`:
+
+Adicionando imports:
+```python
+from django.shortcuts import render, redirect
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
+```
+
+Modifique função de login:
+```python
+def login(request):
+    if request.user.is_authenticated:
+        return redirect('/')
+
+    if request.method == "POST":
+        username = request.POST["username"]
+        password = request.POST["password"]
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            auth_login(request, user)
+            return redirect('/')
+        else:
+            form_login = AuthenticationForm()
+    else:
+        form_login = AuthenticationForm()
+
+    return render(request, 'core/login.html', {'form_login': form_login})
+```
+
+Adicione função de logout:
+```python
+def logout(request):
+    auth_logout(request)
+    return redirect('/')
+```
+
+2. Modifique os arquivo de templates:
+
+Template de login `oficina/core/templates/core/login.html`
+```html
+{% extends 'core/index.html' %}
+{% block content %}
+<main>
+    <form method="post">
+        {% csrf_token %}
+        <h1 class="h3 mb-3 fw-normal">Faça seu login</h1>
+        <div class="mb-3">
+            {{form_login.username.errors}}
+            <label>Login</label>
+            {{form_login.username}}
+        </div>
+        <div class="mb-3">
+            {{form_login.password.errors}}
+            <label>Senha</label>
+            {{form_login.password}}
+        </div>
+        <button class="w-100 btn btn-lg btn-primary" type="submit">Enviar</button>
+    </form>
+</main>
+{% endblock content %}
+```
+
+Template de home `oficina/core/templates/core/home.html` vamos modificar somente a mensagem na tela principal quando o usuário estiver logado:
+```html
+{% if user.is_authenticated %}
+  <p>Olá <strong>{{ user.get_username }}.</strong></p>
+{% else %}
+  <a href="/entrar" class="btn btn-primary btn-lg px-4 gap-3">Faça o seu login</a>
+{% endif %}
+```
+
+Template de index `oficina/core/templates/core/index.html` aqui vamos alterar somente os links da navegação  quando o usuário estiver logado:
+```html
+{% if user.is_authenticated %}
+    <a class="nav-link" href="/sair">Sair</a>
+{% else %}
+    <a class="nav-link" href="/entrar">Entrar</a>
+{% endif %}
+```
+
+Rode o django novamente e veja as modificações:
+
+```bash
+python manage.py runserver
+```
