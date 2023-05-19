@@ -11,4 +11,13 @@ class Carro(models.Model):
     data_criacao = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return self.nome
+        return f"{self.nome} - {self.usuario.username}"
+
+class OrdemServico(models.Model):
+    carro = models.ForeignKey(Carro, on_delete=models.CASCADE)
+    descricao = models.TextField()
+    valor = models.CharField(max_length=200)
+    data_criacao = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"OS: {self.carro.id} - {self.carro.nome} - {self.carro.usuario.username}"
