@@ -5,7 +5,11 @@
     <div class="col-lg-6 mx-auto">
       <p class="lead mb-4">Sistema para gerenciamento de ordens de serviço.</p>
       <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-        <a href="/login" class="btn btn-primary btn-lg px-4 gap-3">Faça o seu login</a>
+        {% if user.is_authenticated %}
+          <p>Olá <strong>{{ user.get_username }}.</strong></p>
+        {% else %}
+          <a href="/entrar" class="btn btn-primary btn-lg px-4 gap-3">Faça o seu login</a>
+        {% endif %}
       </div>
     </div>
   </div>
