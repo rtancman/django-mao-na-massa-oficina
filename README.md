@@ -510,7 +510,95 @@ Template de index `oficina/core/templates/core/index.html` aqui vamos alterar so
 {% endif %}
 ```
 
+
+3. Adicione as novas urls no arquivo `oficina/core/urls.py`:
+
+```python
+path("entrar", views.login, name="login"),
+path("sair", views.logout, name="logout"),
+```
+
 Rode o django novamente e veja as modificações:
+
+```bash
+python manage.py runserver
+```
+
+### Crie a função para ordem de serviço
+
+Vamos exibir para um usuário logado todas as ordens de serviço dele.
+
+1. Modifique o arquivo `oficina/core/views.py`:
+
+Importe o modelo OrdemServico:
+```python
+from .models import OrdemServico
+```
+
+Adicione função de ordem_servico:
+```python
+def orderm_servico(request):
+    if not request.user.is_authenticated:
+        return redirect('/entrar')
+
+    ordens_servico = OrdemServico.objects.filter(carro__usuario=request.user).order_by('data_criacao')
+    return render(request, 'core/ordem_servico.html', {'ordens_servico': ordens_servico})
+```
+
+2. Modifique os arquivo de templates:
+
+Adicione a template oficina/core/templates/core/ordem_servico.html
+```html
+{% extends 'core/index.html' %}
+{% block content %}
+<div class="px-4 py-5 my-5 text-center">
+    <h1 class="display-5 fw-bold text-body-emphasis">Ordem de Serviço</h1>
+    <div class="col-lg-6 mx-auto">
+      <p class="lead mb-4">Veja as suas ordens de serviço abaixo:</p>
+      {% if ordens_servico %}
+        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Carro</th>
+                <th scope="col">Descrição</th>
+                <th scope="col">Valor</th>
+                <th scope="col">data do serviço</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for ordem_servico in ordens_servico %}
+              <tr>
+                <th scope="row">{{ ordem_servico.id }}</th>
+                <td>{{ ordem_servico.carro.nome }}</td>
+                <td>{{ ordem_servico.descricao }}</td>
+                <td>{{ ordem_servico.valor }}</td>
+                <td>{{ ordem_servico.data_criacao }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="alert alert-warning d-flex align-items-center" role="alert">
+          <div>
+            Não existe nenhuma ordem de serviço para este usuário.
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+{% endblock content %}
+```
+
+3. Adicione a nova url no arquivo `oficina/core/urls.py`:
+
+```python
+path("ordem-servico", views.orderm_servico, name="orderm_servico"),
+```
+
+Rode o django novamente para aplicar as modificações:
 
 ```bash
 python manage.py runserver
