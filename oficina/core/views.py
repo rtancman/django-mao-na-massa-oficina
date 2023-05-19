@@ -3,4 +3,8 @@ from django.http import HttpResponse
 
 
 def index(request):
-    return HttpResponse("Oficina Mão na massa!")
+    return render(request, 'core/home.html', {})
+
+
+def login(request):
+    return render(request, 'core/login.html', {})
